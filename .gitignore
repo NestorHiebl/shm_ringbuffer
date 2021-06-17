@@ -1,0 +1,5 @@
+*.o
+ringbuffer_sender
+ringbuffer_receiver
+tempCodeRunnerFile.c
+tempCodeRunnerFile.h
