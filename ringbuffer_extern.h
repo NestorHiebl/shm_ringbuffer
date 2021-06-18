@@ -18,8 +18,9 @@
 
 extern int get_shared_memory_size(int ringbuffer_size);
 
-extern void sender_attempt_graceful_exit();
-extern void receiver_attempt_graceful_exit();
+extern char *get_ringbuffer_address(void *shared_memory_address);
+
+extern void receiver_attempt_graceful_exit(sem_t *semaphore, int shared_memory_identifier, char *shared_memory_address);
 
 extern void enter_sender_loop(sem_t *semaphore, char *ringbuffer, int ringbuffer_size);
 extern void enter_receiver_loop(sem_t *semaphore, char *ringbuffer, int ringbuffer_size);

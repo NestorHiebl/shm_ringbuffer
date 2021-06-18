@@ -31,12 +31,13 @@ int main(int argc, char *argv[]) {
     }
     
     if (ringbuffer_size < 3) {
+        fprintf(stderr, "Invalid size supplied to sender\n");
         exit(1);
     }
 
     key_t shared_memory_key = 6969;
     
-    int shared_memory_flags = 0666;
+    int shared_memory_flags = 0660;
 
     int shared_memory_size = get_shared_memory_size(ringbuffer_size);
 
@@ -44,8 +45,7 @@ int main(int argc, char *argv[]) {
     sleep(1); // AWFUL solution
     int shared_memory_identifier = 0;
     if ((shared_memory_identifier = shmget(shared_memory_key, shared_memory_size, shared_memory_flags)) == -1) {
-        fprintf(stderr, "Receiver failed to open shared memory\n");
-        perror(NULL);
+        perror("Receiver failed to open shared memory\n");
         exit(1);
     }
 
@@ -53,8 +53,7 @@ int main(int argc, char *argv[]) {
     char *shared_memory_address = NULL;
     shared_memory_address = shmat(shared_memory_identifier, shared_memory_address, 0);
     if (shared_memory_address == (char*) -1) {
-        fprintf(stderr, "Receiver failed to attach shared memory\n");
-        perror(NULL);
+        perror("Receiver failed to attach shared memory\n");
         exit(1);
     }
     
@@ -62,23 +61,13 @@ int main(int argc, char *argv[]) {
     sem_t *semaphore = (sem_t*) shared_memory_address;
 
     // Calculate the ringbuffer's starting address    
-    char *ringbuffer_begin = (char*) shared_memory_address + sizeof(sem_t);
+    char *ringbuffer_begin = get_ringbuffer_address(shared_memory_address);
 
     // Main loop
     enter_receiver_loop(semaphore, ringbuffer_begin, ringbuffer_size);
     
     // Start exit procedure
-    if (sem_destroy(semaphore) != 0) {
-        fprintf(stderr, "Could not destroy semaphore\n");
-    }
-
-    if (shmctl(shared_memory_identifier, IPC_RMID, NULL /* The buffer argument is ignored when removing a segment */) == -1) {
-        perror("Sender could not close shared memory\n");
-    }
-
-    if (shmdt(shared_memory_address) == -1) {
-        perror("Receiver could not detach shared memory\n");
-    }
+    receiver_attempt_graceful_exit(semaphore, shared_memory_identifier, shared_memory_address);
 
     return 0;
 }

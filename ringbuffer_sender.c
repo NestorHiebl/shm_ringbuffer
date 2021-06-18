@@ -31,12 +31,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (ringbuffer_size < 3) {
+        fprintf(stderr, "Invalid size supplied to sender\n");
         exit(1);
     }
 
     key_t shared_memory_key = 6969;
     
-    int shared_memory_flags = IPC_CREAT | 0666;
+    int shared_memory_flags = IPC_CREAT | 0660;
 
     int shared_memory_size = get_shared_memory_size(ringbuffer_size);
 
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
 
     // Initialize the semaphore
     if (sem_init(semaphore, 1, 0) != 0) {
-        fprintf(stderr, "Sender could not initiate semaphore\n");
+        perror("Sender could not initiate semaphore\n");
 
         // Kill the shared memory before exiting
 
@@ -78,8 +79,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Calculate the starting address of the ringbuffer
-    char *ringbuffer_begin = (char*) shared_memory_address + sizeof(sem_t);
-
+    char *ringbuffer_begin = get_ringbuffer_address(shared_memory_address);
     // Main loop
     enter_sender_loop(semaphore, ringbuffer_begin, ringbuffer_size);
     
