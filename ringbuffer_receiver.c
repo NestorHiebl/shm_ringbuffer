@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
         int printchar = ringbuffer_begin[ringbuffer_index];
 
         if (printchar == EOF) {
-            ringbuffer_begin[0] = 0;
             break;
         }
 
@@ -86,6 +85,14 @@ int main(int argc, char *argv[]) {
     }
     
     // Start exit procedure
+    if (sem_destroy(semaphore) != 0) {
+        fprintf(stderr, "Could not destroy semaphore\n");
+    }
+
+    if (shmctl(shared_memory_identifier, IPC_RMID, NULL /* The buffer argument is ignored when removing a segment */) == -1) {
+        perror("Sender could not close shared memory\n");
+    }
+
     if (shmdt(shared_memory_address) == -1) {
         perror("Receiver could not detach shared memory\n");
     }

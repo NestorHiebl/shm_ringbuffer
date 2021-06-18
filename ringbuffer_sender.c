@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     char *ringbuffer_begin = (char*) shared_memory_address + sizeof(sem_t);
 
     // Main loop
-    char stdin_buffer = 0;
+    int stdin_buffer = 0;
     int sem_container = 0;
     int ringbuffer_index = 0;
     while (1) {
@@ -114,20 +114,8 @@ int main(int argc, char *argv[]) {
     // The deinitializations should probably be moved to the receiver, so that no signalling
     // on its side is needed
 
-    // Wait for the receiver to signal that it's done
-    while (ringbuffer_begin[0] != 0) {
-        usleep(100);
-    }
     
     // Start exit procedure
-    if (sem_destroy(semaphore) != 0) {
-        fprintf(stderr, "Could not destroy semaphore\n");
-    }
-    
-    if (shmctl(shared_memory_identifier, IPC_RMID, NULL /* The buffer argument is ignored when removing a segment */) == -1) {
-        perror("Sender could not close shared memory\n");
-    }
-
     if (shmdt(shared_memory_address) == -1) {
         perror("Sender could not detach shared memory\n");
     }

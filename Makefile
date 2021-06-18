@@ -28,5 +28,5 @@ clean:
 
 test:
 	echo
-	./ringbuffer_sender -s 3 < text & ./ringbuffer_receiver -s 3
+	./ringbuffer_sender -s 50 < text & ./ringbuffer_receiver -s 50
 	
