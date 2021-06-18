@@ -65,24 +65,7 @@ int main(int argc, char *argv[]) {
     char *ringbuffer_begin = (char*) shared_memory_address + sizeof(sem_t);
 
     // Main loop
-    int ringbuffer_index = 0;
-    while (1) {
-        sem_wait(semaphore);
-
-        int printchar = ringbuffer_begin[ringbuffer_index];
-
-        if (printchar == EOF) {
-            break;
-        }
-
-        putchar(printchar);
-
-        ringbuffer_index++;
-
-        if (ringbuffer_index == ringbuffer_size) {
-            ringbuffer_index = 0;
-        }
-    }
+    enter_receiver_loop(semaphore, ringbuffer_begin, ringbuffer_size);
     
     // Start exit procedure
     if (sem_destroy(semaphore) != 0) {

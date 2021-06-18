@@ -81,41 +81,9 @@ int main(int argc, char *argv[]) {
     char *ringbuffer_begin = (char*) shared_memory_address + sizeof(sem_t);
 
     // Main loop
-    int stdin_buffer = 0;
-    int sem_container = 0;
-    int ringbuffer_index = 0;
-    while (1) {
-        // Check if the ringbuffer is full
-        sem_getvalue(semaphore, &sem_container);
-        // printf("Semaphore value: %d\n", sem_container);
-        if (sem_container > (ringbuffer_size - 1)) {
-            // Skip to the next iteration
-            usleep(100);
-            continue;
-        }
-        
-        stdin_buffer = fgetc(stdin);
-
-        ringbuffer_begin[ringbuffer_index] = stdin_buffer;
-
-        ringbuffer_index++;
-
-        if (ringbuffer_index == ringbuffer_size) {
-            ringbuffer_index = 0;
-        }
-
-        sem_post(semaphore);
-        
-        if (stdin_buffer == EOF) {
-            break;
-        }
-    }
+    enter_sender_loop(semaphore, ringbuffer_begin, ringbuffer_size);
     
-    // The deinitializations should probably be moved to the receiver, so that no signalling
-    // on its side is needed
-
-    
-    // Start exit procedure
+    // Exit procedure
     if (shmdt(shared_memory_address) == -1) {
         perror("Sender could not detach shared memory\n");
     }
