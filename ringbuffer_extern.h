@@ -14,7 +14,9 @@
 #ifndef RINGBUFFER_EXTERN
 #define RINGBUFFER_EXTERN
 
+extern void print_help();
 
+extern void get_options(int argc, char *argv[], int *ringbuffer_size);
 
 extern int get_shared_memory_size(int ringbuffer_size);
 

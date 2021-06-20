@@ -16,19 +16,8 @@
 int main(int argc, char *argv[]) {
 
     int ringbuffer_size = -1;
-    int option = 0;
-    while ((option = getopt(argc, argv, "s:")) != -1) {
-        switch (option) {
-            case 's':
-                ringbuffer_size = (int) strtol(optarg, NULL, 10);
-                break;
-        
-            default:
-                fprintf(stderr, "Invalid size supplied to receiver\n");
-                exit(1);
-                break;
-        }
-    }
+    
+    get_options(argc, argv, &ringbuffer_size);
     
     if (ringbuffer_size < 3) {
         fprintf(stderr, "Invalid size supplied to sender\n");
@@ -41,8 +30,8 @@ int main(int argc, char *argv[]) {
 
     int shared_memory_size = get_shared_memory_size(ringbuffer_size);
 
-    // Get the (already initialized) shared memory (race condition here)
-    sleep(1); // AWFUL solution
+    // Get the (already initialized) shared memory (race condition if both processes are started simultaneously)
+    usleep(500); // AWFUL solution for simultaneous execution
     int shared_memory_identifier = 0;
     if ((shared_memory_identifier = shmget(shared_memory_key, shared_memory_size, shared_memory_flags)) == -1) {
         perror("Receiver failed to open shared memory\n");

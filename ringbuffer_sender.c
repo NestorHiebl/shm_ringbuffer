@@ -16,19 +16,7 @@
 int main(int argc, char *argv[]) {
 
     int ringbuffer_size = -1;
-    int option = 0;
-    while ((option = getopt(argc, argv, "s:")) != -1) {
-        switch (option) {
-            case 's':
-                ringbuffer_size = (int) strtol(optarg, NULL, 10);
-                break;
-        
-            default:
-                fprintf(stderr, "Invalid size supplied to sender\n");
-                exit(1);
-                break;
-        }
-    }
+    get_options(argc, argv, &ringbuffer_size);
 
     if (ringbuffer_size < 3) {
         fprintf(stderr, "Invalid size supplied to sender\n");
@@ -44,8 +32,7 @@ int main(int argc, char *argv[]) {
     // Get the shared memory
     int shared_memory_identifier = 0;
     if ((shared_memory_identifier = shmget(shared_memory_key, shared_memory_size, shared_memory_flags)) == -1) {
-        fprintf(stderr, "Sender failed to open shared memory\n");
-        perror(NULL);
+        perror("Sender failed to open shared memory\n");
         exit(1);
     }
 
@@ -53,8 +40,7 @@ int main(int argc, char *argv[]) {
     char *shared_memory_address = NULL;
     shared_memory_address = shmat(shared_memory_identifier, shared_memory_address, 0);
     if (shared_memory_address == (char*) -1) {
-        fprintf(stderr, "Sender failed to attach shared memory\n");
-        perror(NULL);
+        perror("Sender failed to attach shared memory\n");
         exit(1);
     }
 
@@ -66,7 +52,6 @@ int main(int argc, char *argv[]) {
         perror("Sender could not initiate semaphore\n");
 
         // Kill the shared memory before exiting
-
         if (shmctl(shared_memory_identifier, IPC_RMID, NULL /* The buffer argument is ignored when removing a segment */) == -1) {
             perror("Sender could not close shared memory\n");
         }
@@ -74,7 +59,6 @@ int main(int argc, char *argv[]) {
         if (shmdt(shared_memory_address) == -1) {
             perror("Sender could not detach shared memory\n");
         }
-
         exit(1);
     }
     
