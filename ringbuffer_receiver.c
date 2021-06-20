@@ -16,7 +16,7 @@
 int main(int argc, char *argv[]) {
 
     int ringbuffer_size = -1;
-    
+
     get_options(argc, argv, &ringbuffer_size);
     
     if (ringbuffer_size < 3) {
@@ -24,9 +24,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    key_t shared_memory_key = 6969;
+    key_t shared_memory_key = SHM_KEY;
     
-    int shared_memory_flags = 0660;
+    int shared_memory_flags = SHM_ACCESS_FLAGS;
 
     int shared_memory_size = get_shared_memory_size(ringbuffer_size);
 

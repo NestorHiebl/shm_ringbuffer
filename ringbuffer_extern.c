@@ -13,9 +13,9 @@
 
 void print_help() {
     printf( "Usage:\n"
-            "\tringbuffer_sender -s [ringbuffer size];\n"
-            "\tringbuffer_receiver -s [ringbuffer size]\n\n"
-            "The ringbuffer size argument should be greater than 3. Using different values "
+            "\tringbuffer_sender -m [ringbuffer size];\n"
+            "\tringbuffer_receiver -m [ringbuffer size]\n\n"
+            "The ringbuffer size argument (-m) should be greater than 3. Using different values "
             "for the sender and receiver results in undefined behaviour. The receiver is to "
             "be started second, after the sender. Using the '&' operator to run both processes "
             "in the same line is posible but may lead to a race condition.\n");
@@ -23,9 +23,9 @@ void print_help() {
 
 void get_options(int argc, char *argv[], int *ringbuffer_size) {
         int option = 0;
-    while ((option = getopt(argc, argv, "s:h")) != -1) {
+    while ((option = getopt(argc, argv, "m:h")) != -1) {
         switch (option) {
-            case 's':
+            case 'm':
                 *ringbuffer_size = (int) strtol(optarg, NULL, 10);
                 break;
             case 'h':
@@ -99,11 +99,7 @@ void enter_sender_loop(sem_t *semaphore, char *ringbuffer, int ringbuffer_size) 
 
         ringbuffer[ringbuffer_index] = stdin_buffer;
 
-        ringbuffer_index++;
-
-        if (ringbuffer_index == ringbuffer_size) {
-            ringbuffer_index = 0;
-        }
+        ringbuffer_index = (ringbuffer_index + 1) % ringbuffer_size;
 
         sem_post(semaphore);
         
@@ -126,10 +122,6 @@ void enter_receiver_loop(sem_t *semaphore, char *ringbuffer, int ringbuffer_size
 
         putchar(printchar);
 
-        ringbuffer_index++;
-
-        if (ringbuffer_index == ringbuffer_size) {
-            ringbuffer_index = 0;
-        }
+        ringbuffer_index = (ringbuffer_index + 1) % ringbuffer_size;
     }
 }

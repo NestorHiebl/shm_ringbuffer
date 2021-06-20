@@ -8,7 +8,6 @@ DEBUG = -g
 
 CCFLAGS = $(WARNINGS) $(DEBUG)
 
-
 all: $(OBJECTS)
 	$(LINKER) -pthread -o ringbuffer_sender ringbuffer_sender.o ringbuffer_extern.o -lrt
 	$(LINKER) -pthread -o ringbuffer_receiver  ringbuffer_receiver.o ringbuffer_extern.o -lrt
@@ -24,9 +23,8 @@ ringbuffer_extern.o: ringbuffer_extern.c ringbuffer_extern.h
 
 clean:
 	rm -f *.o a.out ringbuffer_sender ringbuffer_receiver
-	ipcrm --shmem-key 6969
 
 test:
 	echo
-	./ringbuffer_sender -s 50 < text & ./ringbuffer_receiver -s 50
+	./ringbuffer_sender -m 50 < text & ./ringbuffer_receiver -m 50
 	

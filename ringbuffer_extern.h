@@ -14,6 +14,9 @@
 #ifndef RINGBUFFER_EXTERN
 #define RINGBUFFER_EXTERN
 
+#define SHM_KEY 6969
+#define SHM_ACCESS_FLAGS 0660
+
 extern void print_help();
 
 extern void get_options(int argc, char *argv[], int *ringbuffer_size);

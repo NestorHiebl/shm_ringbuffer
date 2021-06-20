@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    key_t shared_memory_key = 6969;
+    key_t shared_memory_key = SHM_KEY;
     
-    int shared_memory_flags = IPC_CREAT | 0660;
+    int shared_memory_flags = IPC_CREAT | SHM_ACCESS_FLAGS;
 
     int shared_memory_size = get_shared_memory_size(ringbuffer_size);
 
